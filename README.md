@@ -140,7 +140,7 @@ Travel-Management-System/
 ### 1. Clone the repository
 
 ```bash
-git clone <YOUR_GITHUB_REPOSITORY_URL>
+git clone <(https://github.com/jmmahafuz-stack/Travel_Management)>
 ```
 
 ### 2. Navigate to the project directory
