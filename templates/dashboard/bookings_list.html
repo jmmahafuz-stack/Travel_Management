@@ -1,4 +1,5 @@
 {% extends 'admin_base.html' %}
+{% load bookings_admin_tags %}
 
 {% block title %}Manage Bookings{% endblock %}
 
@@ -16,9 +17,20 @@
           <div class="text-xs text-gray-500 mt-1">Date: {{ b.created_at|date:"M d, Y H:i" }}</div>
           
           <!-- Payment Info -->
-          <div class="mt-2 p-2 bg-blue-50 rounded text-xs">
-            <span class="text-blue-800">💳 Amount: ৳{{ b.total_price|default:"0" }} | Status: Pending Payment</span>
-          </div>
+          {% with payment=payment_map|get_item:"flight_"|add:b.id|stringformat:"s" %}
+            {% if payment %}
+              <div class="mt-2 p-2 rounded text-xs {% if payment.payment_status == 'paid' %}bg-green-50{% else %}bg-blue-50{% endif %}">
+                <div class="font-semibold mb-1">💳 Payment Info:</div>
+                <div class="text-gray-700">Amount: ৳{{ payment.amount }}</div>
+                <div class="text-gray-700">Status: <span class="font-bold">{{ payment.payment_status|upper }}</span></div>
+                <div class="text-gray-700 mt-1">Transaction #: <span class="font-mono font-bold">{{ payment.transaction_id }}</span></div>
+              </div>
+            {% else %}
+              <div class="mt-2 p-2 bg-yellow-50 rounded text-xs">
+                <span class="text-yellow-800">⚠️ No payment record found</span>
+              </div>
+            {% endif %}
+          {% endwith %}
         </div>
         <div class="text-right ml-4 min-w-max">
           <div class="text-sm font-semibold mb-2">
@@ -27,8 +39,12 @@
             </span>
           </div>
           <div class="space-x-1 mt-2">
-            <a href="{% url 'dashboard-manage-booking-action' 'flight' b.pk 'confirm' %}" class="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition font-medium">Confirm</a>
-            <a href="{% url 'dashboard-manage-booking-action' 'flight' b.pk 'cancel' %}" class="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition font-medium">Cancel</a>
+            {% if b.booking_status != 'confirmed' %}
+              <a href="{% url 'dashboard-manage-booking-action' 'flight' b.pk 'confirm' %}" class="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition font-medium">✓ Confirm</a>
+            {% endif %}
+            {% if b.booking_status != 'cancelled' %}
+              <a href="{% url 'dashboard-manage-booking-action' 'flight' b.pk 'cancel' %}" class="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition font-medium">✕ Cancel</a>
+            {% endif %}
           </div>
         </div>
       </div>
@@ -49,9 +65,20 @@
           <div class="text-xs text-gray-500 mt-1">Date: {{ b.created_at|date:"M d, Y H:i" }}</div>
           
           <!-- Payment Info -->
-          <div class="mt-2 p-2 bg-blue-50 rounded text-xs">
-            <span class="text-blue-800">💳 Amount: ৳{{ b.total_price|default:"0" }} | Status: Pending Payment</span>
-          </div>
+          {% with payment=payment_map|get_item:"hotel_"|add:b.id|stringformat:"s" %}
+            {% if payment %}
+              <div class="mt-2 p-2 rounded text-xs {% if payment.payment_status == 'paid' %}bg-green-50{% else %}bg-blue-50{% endif %}">
+                <div class="font-semibold mb-1">💳 Payment Info:</div>
+                <div class="text-gray-700">Amount: ৳{{ payment.amount }}</div>
+                <div class="text-gray-700">Status: <span class="font-bold">{{ payment.payment_status|upper }}</span></div>
+                <div class="text-gray-700 mt-1">Transaction #: <span class="font-mono font-bold">{{ payment.transaction_id }}</span></div>
+              </div>
+            {% else %}
+              <div class="mt-2 p-2 bg-yellow-50 rounded text-xs">
+                <span class="text-yellow-800">⚠️ No payment record found</span>
+              </div>
+            {% endif %}
+          {% endwith %}
         </div>
         <div class="text-right ml-4 min-w-max">
           <div class="text-sm font-semibold mb-2">
@@ -60,8 +87,12 @@
             </span>
           </div>
           <div class="space-x-1 mt-2">
-            <a href="{% url 'dashboard-manage-booking-action' 'hotel' b.pk 'confirm' %}" class="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition font-medium">Confirm</a>
-            <a href="{% url 'dashboard-manage-booking-action' 'hotel' b.pk 'cancel' %}" class="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition font-medium">Cancel</a>
+            {% if b.booking_status != 'confirmed' %}
+              <a href="{% url 'dashboard-manage-booking-action' 'hotel' b.pk 'confirm' %}" class="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition font-medium">✓ Confirm</a>
+            {% endif %}
+            {% if b.booking_status != 'cancelled' %}
+              <a href="{% url 'dashboard-manage-booking-action' 'hotel' b.pk 'cancel' %}" class="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition font-medium">✕ Cancel</a>
+            {% endif %}
           </div>
         </div>
       </div>
@@ -82,9 +113,20 @@
           <div class="text-xs text-gray-500 mt-1">Date: {{ b.created_at|date:"M d, Y H:i" }}</div>
           
           <!-- Payment Info -->
-          <div class="mt-2 p-2 bg-blue-50 rounded text-xs">
-            <span class="text-blue-800">💳 Amount: ৳{{ b.total_price|default:"0" }} | Status: Pending Payment</span>
-          </div>
+          {% with payment=payment_map|get_item:"package_"|add:b.id|stringformat:"s" %}
+            {% if payment %}
+              <div class="mt-2 p-2 rounded text-xs {% if payment.payment_status == 'paid' %}bg-green-50{% else %}bg-blue-50{% endif %}">
+                <div class="font-semibold mb-1">💳 Payment Info:</div>
+                <div class="text-gray-700">Amount: ৳{{ payment.amount }}</div>
+                <div class="text-gray-700">Status: <span class="font-bold">{{ payment.payment_status|upper }}</span></div>
+                <div class="text-gray-700 mt-1">Transaction #: <span class="font-mono font-bold">{{ payment.transaction_id }}</span></div>
+              </div>
+            {% else %}
+              <div class="mt-2 p-2 bg-yellow-50 rounded text-xs">
+                <span class="text-yellow-800">⚠️ No payment record found</span>
+              </div>
+            {% endif %}
+          {% endwith %}
         </div>
         <div class="text-right ml-4 min-w-max">
           <div class="text-sm font-semibold mb-2">
@@ -93,8 +135,12 @@
             </span>
           </div>
           <div class="space-x-1 mt-2">
-            <a href="{% url 'dashboard-manage-booking-action' 'package' b.pk 'confirm' %}" class="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition font-medium">Confirm</a>
-            <a href="{% url 'dashboard-manage-booking-action' 'package' b.pk 'cancel' %}" class="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition font-medium">Cancel</a>
+            {% if b.booking_status != 'confirmed' %}
+              <a href="{% url 'dashboard-manage-booking-action' 'package' b.pk 'confirm' %}" class="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition font-medium">✓ Confirm</a>
+            {% endif %}
+            {% if b.booking_status != 'cancelled' %}
+              <a href="{% url 'dashboard-manage-booking-action' 'package' b.pk 'cancel' %}" class="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition font-medium">✕ Cancel</a>
+            {% endif %}
           </div>
         </div>
       </div>

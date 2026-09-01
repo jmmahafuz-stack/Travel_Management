@@ -25,7 +25,8 @@ def mock_process_payment(request):
     """Simple mock payment endpoint.
 
     POST params: booking_type, booking_id
-    Creates a Payment with status 'paid' and sets the related booking to 'confirmed'.
+    Creates a Payment with status 'paid' while leaving the booking in 'pending'
+    until an admin verifies and confirms it.
     """
     if request.method != 'POST':
         return JsonResponse({'detail': 'Method not allowed'}, status=405)
@@ -133,17 +134,18 @@ def checkout_process(request):
     else:
         transaction_id = f"MOCK-{_uuid.uuid4().hex[:12]}"
 
-    # Record the payment as 'pending' so admin can verify before confirming booking
+    # Payment is considered confirmed immediately, but the booking itself remains
+    # pending until an admin validates the payment and confirms the booking.
     payment = Payment.objects.create(
         user=request.user,
         booking_type=booking_type,
         booking_id=booking_obj.id,
         amount=getattr(booking_obj, 'total_price', 0) or 0,
         transaction_id=transaction_id,
-        payment_status='pending',
+        payment_status='paid',
     )
 
-    # Ensure the booking stays in 'pending' state and is associated to user so it appears in My Bookings
+    # Keep booking pending until admin approval; it still needs to appear in My Bookings.
     try:
         booking_obj.booking_status = 'pending'
         booking_obj.save()
@@ -154,5 +156,5 @@ def checkout_process(request):
     if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
         return JsonResponse({'status': 'ok', 'payment_id': payment.id})
 
-    messages.success(request, 'Payment processed. Admin will review and confirm the booking.')
+    messages.success(request, 'Payment recorded successfully. Booking remains pending until admin confirms after reviewing the payment.')
     return redirect('bookings_page')

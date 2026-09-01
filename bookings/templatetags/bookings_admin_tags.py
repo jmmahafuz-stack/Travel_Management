@@ -34,3 +34,14 @@ def pending_badge(app_label, model_name):
     except Exception:
         pass
     return ''
+
+
+@register.filter
+def get_item(dictionary, key):
+    """Get item from dictionary using the given key.
+    
+    Usage: {{ payment_map|get_item:"flight_123" }}
+    """
+    if isinstance(dictionary, dict):
+        return dictionary.get(key)
+    return None

@@ -218,18 +218,36 @@ def package_delete(request, pk):
 
 
 @user_passes_test(_is_admin)
-@user_passes_test(_is_admin)
 def bookings_list(request):
     from bookings.models import FlightBooking, HotelBooking, PackageBooking
+    from payments.models import Payment
 
     flight_bookings = FlightBooking.objects.select_related('flight', 'user').all().order_by('-created_at')
     hotel_bookings = HotelBooking.objects.select_related('hotel', 'user').all().order_by('-created_at')
     package_bookings = PackageBooking.objects.select_related('package', 'user').all().order_by('-created_at')
+    
+    # Fetch payment info for each booking type
+    payment_map = {}
+    for b in flight_bookings:
+        payment = Payment.objects.filter(booking_type='flight', booking_id=b.id).order_by('-created_at').first()
+        if payment:
+            payment_map[f'flight_{b.id}'] = payment
+    
+    for b in hotel_bookings:
+        payment = Payment.objects.filter(booking_type='hotel', booking_id=b.id).order_by('-created_at').first()
+        if payment:
+            payment_map[f'hotel_{b.id}'] = payment
+    
+    for b in package_bookings:
+        payment = Payment.objects.filter(booking_type='package', booking_id=b.id).order_by('-created_at').first()
+        if payment:
+            payment_map[f'package_{b.id}'] = payment
 
     return render(request, 'dashboard/bookings_list.html', {
         'flight_bookings': flight_bookings,
         'hotel_bookings': hotel_bookings,
         'package_bookings': package_bookings,
+        'payment_map': payment_map,
     })
 
 
@@ -256,14 +274,16 @@ def booking_action(request, btype, pk, action):
     
     if action == 'confirm':
         # Check if payment exists and is paid
-        payment = Payment.objects.filter(booking_type=btype, booking_id=pk).first()
+        # Get the most recent paid payment for this booking
+        payment = Payment.objects.filter(booking_type=btype, booking_id=pk, payment_status='paid').order_by('-created_at').first()
         
         if not payment:
-            messages.warning(request, f"No payment found for this booking. Please process payment first.")
-            return redirect('dashboard-manage-bookings')
-        
-        if payment.payment_status != 'paid':
-            messages.warning(request, f"Payment status is '{payment.payment_status}'. Only 'paid' payments can be confirmed.")
+            # Check if there's any payment at all
+            any_payment = Payment.objects.filter(booking_type=btype, booking_id=pk).first()
+            if any_payment:
+                messages.warning(request, f"Payment status is '{any_payment.payment_status}'. Only 'paid' payments can be confirmed.")
+            else:
+                messages.warning(request, f"No payment found for this booking. Please process payment first.")
             return redirect('dashboard-manage-bookings')
         
         # Confirm the booking
