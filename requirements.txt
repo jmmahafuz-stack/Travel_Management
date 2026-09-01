@@ -1,5 +1,5 @@
 Django==6.0.5
-djangorestframework==3.14.0
+djangorestframework==3.16.1
 django-cors-headers==4.3.1
 djangorestframework-simplejwt==5.5.1
 cloudinary==1.46.2
