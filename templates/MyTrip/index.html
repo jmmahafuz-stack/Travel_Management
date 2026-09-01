@@ -12,7 +12,7 @@
       <div class="absolute inset-0 bg-black/40"></div>
     {% endif %}
     
-    <div class="relative z-10 h-full flex flex-col items-center justify-center text-center text-white px-4">
+    <div class="relative z-10 h-full flex flex-col items-center justify-center text-center text-white px-12">
       <h1 class="text-3xl md:text-5xl font-bold mb-3">
         {% if hero_heading %}
           {{ hero_heading }}
@@ -29,18 +29,17 @@
       </p>
       
       <!-- Search Box -->
-      <form method="get" action="{% url 'search' %}" class="w-full max-w-2xl px-4">
+      <form method="get" action="{% url 'search' %}" class="w-full max-w-6xl px-4">
         <div class="flex flex-col sm:flex-row gap-2 items-center">
-          <select name="type" class="px-4 py-3 rounded border-0 text-base focus:ring-2 focus:ring-blue-500 w-full sm:w-auto">
-            <option value="all">Search All</option>
-            <option value="flights">Flights</option>
-            <option value="hotels">Hotels</option>
-            <option value="packages">Packages</option>
-            <option value="places">Places</option>
+          <select name="type" class="px-4 py-3 rounded border-0 text-base font-bold w-full sm:w-auto" style="background-color: #0066ff; color: #000;">
+            <option value="all" style="color: #000; background-color: #fff;">Search All</option>
+            <option value="flights" style="color: #000; background-color: #fff;">Flights</option>
+            <option value="hotels" style="color: #000; background-color: #fff;">Hotels</option>
+            <option value="packages" style="color: #000; background-color: #fff;">Packages</option>
           </select>
              <input type="search" name="q" placeholder="{% if search_placeholder %}{{ search_placeholder }}{% else %}Destination, hotel, package...{% endif %}" 
-                   class="flex-1 px-4 py-3 rounded border-0 focus:ring-2 focus:ring-blue-500 text-gray-900 text-base min-w-0">
-                 <button type="submit" class="px-6 py-3 bg-white text-blue-600 font-semibold rounded hover:bg-blue-50 transition text-base whitespace-nowrap">
+                   class="flex-1 px-4 py-3 rounded border-0 text-gray-900 text-base min-w-0">
+                 <button type="submit" class="px-6 py-3 text-white font-bold rounded text-base whitespace-nowrap" style="background-color: #0066ff;">
             Search
           </button>
         </div>

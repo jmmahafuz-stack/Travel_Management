@@ -24,16 +24,16 @@
       <!-- Right Side: Search + User Actions -->
       <div class="flex items-center gap-2 sm:gap-4">
         <!-- Search Bar (Desktop) -->
-        <form method="get" action="{% url 'search' %}" class="hidden md:flex items-center gap-1 px-3 py-2 rounded-lg" style="background-color: rgba(255,255,255,0.1);">
-          <select name="type" class="rounded-md text-xs p-1.5 border-0 bg-white bg-opacity-80">
+        <form method="get" action="{% url 'search' %}" class="hidden md:flex items-center gap-1 px-3 py-2 rounded-lg" style="background-color: #2563eb;">
+          <select name="type" class="rounded-md text-xs p-1.5 border-0 bg-blue-50 text-gray-900">
             <option value="all">All</option>
             <option value="flights">Flights</option>
             <option value="hotels">Hotels</option>
             <option value="packages">Packages</option>
             <option value="places">Places</option>
           </select>
-          <input name="q" type="search" placeholder="Search..." class="rounded-md border-0 p-1.5 text-xs w-40">
-          <button type="submit" class="px-2 py-1 text-white rounded-md text-xs font-medium" style="background-color: rgba(255,255,255,0.3);">Search</button>
+          <input name="q" type="search" placeholder="Search..." class="rounded-md border-0 p-1.5 text-xs w-40 text-gray-900">
+          <button type="submit" class="px-2 py-1 text-white rounded-md text-xs font-medium" style="background-color: #1d4ed8;">Search</button>
         </form>
 
         <!-- Theme Toggle Button -->
