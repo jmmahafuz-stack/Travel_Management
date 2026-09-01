@@ -14,7 +14,7 @@
       <p class="text-sm text-gray-500 mt-1">{{ request.user.get_full_name|default:request.user.username }}</p>
     </div>
     <div class="flex gap-2">
-      <a href="{% url 'admin:index' %}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Admin Panel</a>
+      <a href="{% url 'admin:accounts_user_changelist' %}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Admin Panel</a>
       <a href="{% url 'logout' %}" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">Logout</a>
     </div>
   </div>
