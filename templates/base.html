@@ -8,24 +8,7 @@
   <!-- Tailwind CDN for quick development use -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            primary: '#2563EB', /* deeper blue */
-            accent: '#8B5CF6',
-            success: '#10B981',
-            pagebg: '#F1F5F9', /* soft neutral page background */
-            surface: '#FFFFFF',
-            muted: '#64748B',
-            charcoal: '#0B1220'
-          }
-        }
-      }
-    }
-  </script>
-
+  
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
   <link rel="stylesheet" href="{% static 'css/darkmode.css' %}">
@@ -33,21 +16,7 @@
 <body class="bg-pagebg min-h-screen text-gray-900">
   {% include 'navbar.html' %}
 
-  {% if user.is_authenticated %}
-    {% if user.is_staff or user.role == 'admin' %}
-      <div class="fixed right-6 top-4 z-50">
-        <form method="post" action="{% url 'logout' %}" class="inline-block">
-          {% csrf_token %}
-          <button type="submit" class="inline-flex items-center gap-2 px-3 py-2 bg-white text-gray-900 text-sm rounded-md border">Logout</button>
-        </form>
-        <noscript>
-          <a href="{% url 'logout' %}" class="inline-flex items-center gap-2 px-3 py-2 bg-white text-gray-900 text-sm rounded-md border">Logout</a>
-        </noscript>
-      </div>
-    {% endif %}
-  {% endif %}
-
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  <main class="max-w-screen-2xl mx-auto px-4 sm:px-8 lg:px-12 py-6">
     {% if messages %}
       <div class="mb-4">
         {% for message in messages %}

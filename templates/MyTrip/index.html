@@ -1,0 +1,218 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}MyTrip - Home{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="mb-0 w-full">
+  <div class="relative h-96 overflow-hidden" style="background: linear-gradient(135deg, #001f3f 0%, #003d7a 100%);">
+    {% if hero_image %}
+      <img src="{{ hero_image }}" alt="Hero" class="w-full h-full object-cover absolute inset-0">
+      <div class="absolute inset-0 bg-black/40"></div>
+    {% endif %}
+    
+    <div class="relative z-10 h-full flex flex-col items-center justify-center text-center text-white px-4">
+      <h1 class="text-3xl md:text-5xl font-bold mb-3">
+        {% if hero_heading %}
+          {{ hero_heading }}
+        {% else %}
+          Travel better with MyTrip
+        {% endif %}
+      </h1>
+      <p class="text-base md:text-xl mb-6 max-w-3xl">
+        {% if hero_subheading %}
+          {{ hero_subheading }}
+        {% else %}
+          Search flights, hotels and curated travel packages — plan and book in a few clicks.
+        {% endif %}
+      </p>
+      
+      <!-- Search Box -->
+      <form method="get" action="{% url 'search' %}" class="w-full max-w-2xl px-4">
+        <div class="flex flex-col sm:flex-row gap-2 items-center">
+          <select name="type" class="px-4 py-3 rounded border-0 text-base focus:ring-2 focus:ring-blue-500 w-full sm:w-auto">
+            <option value="all">Search All</option>
+            <option value="flights">Flights</option>
+            <option value="hotels">Hotels</option>
+            <option value="packages">Packages</option>
+            <option value="places">Places</option>
+          </select>
+             <input type="search" name="q" placeholder="{% if search_placeholder %}{{ search_placeholder }}{% else %}Destination, hotel, package...{% endif %}" 
+                   class="flex-1 px-4 py-3 rounded border-0 focus:ring-2 focus:ring-blue-500 text-gray-900 text-base min-w-0">
+                 <button type="submit" class="px-6 py-3 bg-white text-blue-600 font-semibold rounded hover:bg-blue-50 transition text-base whitespace-nowrap">
+            Search
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- Featured Flights Section -->
+{% if flights %}
+<section class="mb-0 w-full bg-white py-10 border-t border-gray-100">
+  <div class="max-w-screen-2xl mx-auto">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-3xl font-bold text-gray-900">✈️ Featured Flights</h2>
+      <a href="{% url 'flights_page' %}" class="text-blue-600 hover:text-blue-800 font-semibold text-sm">View All →</a>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    {% for flight in flights %}
+      <div class="bg-white rounded shadow hover:shadow-md transition overflow-hidden border border-gray-100">
+        {% if flight.hero_image %}
+          <img src="{{ flight.hero_image.url }}" alt="{{ flight.name }}" class="w-full h-44 object-cover">
+        {% else %}
+          <div class="w-full h-44 bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
+            <span class="text-3xl">✈️</span>
+          </div>
+        {% endif %}
+        
+        <div class="p-3">
+          <h3 class="text-base font-bold text-gray-900 mb-1 truncate">{{ flight.name }}</h3>
+          {% if flight.airline %}
+            <p class="text-xs text-gray-600 mb-1 line-clamp-1">{{ flight.airline.name }}</p>
+          {% endif %}
+          
+          <div class="flex justify-between items-center mb-1 text-xs gap-1">
+            <div>
+              <p class="text-gray-500 text-xs leading-tight">From</p>
+              <p class="font-semibold text-gray-900 text-xs leading-tight">{{ flight.departure_city|default:"TBD" }}</p>
+            </div>
+            <div class="text-gray-400 text-xs flex-shrink-0">→</div>
+            <div class="text-right">
+              <p class="text-gray-500 text-xs leading-tight">To</p>
+              <p class="font-semibold text-gray-900 text-xs leading-tight">{{ flight.arrival_city|default:"TBD" }}</p>
+            </div>
+          </div>
+          
+          {% if flight.price %}
+            <p class="text-xs font-bold text-blue-600 mb-0.5">${{ flight.price }}</p>
+          {% endif %}
+          
+          <a href="{% url 'flight_detail' flight.id %}" class="block w-full text-center bg-blue-600 text-white font-semibold py-0.5 text-xs rounded hover:bg-blue-700 transition">
+            View
+          </a>
+        </div>
+      </div>
+    {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- Featured Hotels Section -->
+{% if hotels %}
+<section class="mb-0 w-full bg-gray-50 py-10 border-t border-gray-200">
+  <div class="max-w-screen-2xl mx-auto">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-3xl font-bold text-gray-900">🏨 Featured Hotels</h2>
+      <a href="{% url 'hotels_page' %}" class="text-blue-600 hover:text-blue-800 font-semibold text-sm">View All →</a>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    {% for hotel in hotels %}
+      <div class="bg-white rounded shadow hover:shadow-md transition overflow-hidden border border-gray-100">
+        {% if hotel.hero_image %}
+          <img src="{{ hotel.hero_image.url }}" alt="{{ hotel.name }}" class="w-full h-44 object-cover">
+        {% else %}
+          <div class="w-full h-44 bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center">
+            <span class="text-3xl">🏨</span>
+          </div>
+        {% endif %}
+        
+        <div class="p-3">
+          <h3 class="text-base font-bold text-gray-900 mb-1 truncate">{{ hotel.name }}</h3>
+          
+          {% if hotel.location %}
+            <p class="text-xs text-gray-600 mb-0.5 line-clamp-1">📍 {{ hotel.location }}</p>
+          {% endif %}
+          
+          {% if hotel.rating %}
+            <div class="flex items-center mb-0.5">
+              <span class="text-yellow-400 text-xs">★</span>
+              <span class="ml-1 font-semibold text-gray-900 text-xs leading-tight">{{ hotel.rating }}/5</span>
+            </div>
+          {% endif %}
+          
+          {% if hotel.price_per_night %}
+            <p class="text-xs font-bold text-blue-600 mb-0.5">${{ hotel.price_per_night }}/night</p>
+          {% endif %}
+          
+          <a href="{% url 'hotel_detail' hotel.id %}" class="block w-full text-center bg-blue-600 text-white font-semibold py-0.5 text-xs rounded hover:bg-blue-700 transition">
+            View
+          </a>
+        </div>
+      </div>
+    {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- Featured Packages Section -->
+{% if packages %}
+<section class="mb-0 w-full bg-white py-10 border-t border-gray-100">
+  <div class="max-w-screen-2xl mx-auto">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-3xl font-bold text-gray-900">📦 Featured Packages</h2>
+      <a href="{% url 'packages_page' %}" class="text-blue-600 hover:text-blue-800 font-semibold text-sm">View All →</a>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    {% for package in packages %}
+      <div class="bg-white rounded shadow hover:shadow-md transition overflow-hidden border border-gray-100">
+        {% if package.hero_image %}
+          <img src="{{ package.hero_image.url }}" alt="{{ package.name }}" class="w-full h-44 object-cover">
+        {% else %}
+          <div class="w-full h-44 bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center">
+            <span class="text-3xl">📦</span>
+          </div>
+        {% endif %}
+        
+        <div class="p-3">
+          <h3 class="text-base font-bold text-gray-900 mb-1 truncate">{{ package.name }}</h3>
+          
+          {% if package.description %}
+            <p class="text-xs text-gray-600 mb-0.5 line-clamp-1">{{ package.description }}</p>
+          {% endif %}
+          
+          {% if package.duration %}
+            <p class="text-xs text-gray-600 mb-0.5">⏱️ {{ package.duration }} days</p>
+          {% endif %}
+          
+          {% if package.price %}
+            <p class="text-xs font-bold text-blue-600 mb-0.5">${{ package.price }}</p>
+          {% endif %}
+          
+          <a href="{% url 'package_detail' package.id %}" class="block w-full text-center bg-blue-600 text-white font-semibold py-0.5 text-xs rounded hover:bg-blue-700 transition">
+            View
+          </a>
+        </div>
+      </div>
+    {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- Call to Action Section -->
+<section class="w-full text-white py-14 text-center border-t border-blue-500" style="background: linear-gradient(135deg, #001f3f 0%, #003d7a 100%);">
+  <div class="max-w-screen-2xl mx-auto">
+    <h2 class="text-3xl font-bold mb-3">Ready to Book Your Adventure?</h2>
+    <p class="text-lg mb-5 max-w-2xl mx-auto">Explore flights, hotels, and travel packages to find your perfect trip.</p>
+    <div class="flex gap-2 justify-center flex-wrap">
+      <a href="{% url 'flights_page' %}" class="bg-white text-blue-600 font-semibold px-3 py-1 rounded hover:bg-blue-50 transition text-xs">
+        ✈️ Flights
+      </a>
+      <a href="{% url 'hotels_page' %}" class="bg-white text-blue-600 font-semibold px-3 py-1 rounded hover:bg-blue-50 transition text-xs">
+        🏨 Hotels
+      </a>
+      <a href="{% url 'packages_page' %}" class="bg-white text-blue-600 font-semibold px-3 py-1 rounded hover:bg-blue-50 transition text-xs">
+        📦 Packages
+      </a>
+    </div>
+  </div>
+</section>
+{% endblock %}

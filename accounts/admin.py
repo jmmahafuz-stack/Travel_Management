@@ -1,26 +1,27 @@
-from django.core.management.base import BaseCommand
-from django.contrib.auth import get_user_model
-import os
-
-User = get_user_model()
+from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from .models import User
 
 
-class Command(BaseCommand):
-    help = "Create admin if it does not exist"
-
-    def handle(self, *args, **kwargs):
-        username = os.getenv("ADMIN_USERNAME", "admin")
-        email = os.getenv("ADMIN_EMAIL", "admin@example.com")
-        password = os.getenv("ADMIN_PASSWORD", "password123")
-
-        if User.objects.filter(username=username).exists():
-            self.stdout.write("Admin already exists.")
-            return
-
-        User.objects.create_superuser(
-            username=username,
-            email=email,
-            password=password,
-        )
-
-        self.stdout.write("Admin created successfully.")
+@admin.register(User)
+class UserAdmin(BaseUserAdmin):
+    """Admin interface for User management"""
+    fieldsets = (
+        (None, {'fields': ('username', 'password')}),
+        ('Personal info', {'fields': ('first_name', 'last_name', 'email')}),
+        ('Permissions', {
+            'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions'),
+        }),
+        ('Important dates', {'fields': ('last_login', 'date_joined')}),
+        ('Role', {'fields': ('role',)}),
+    )
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('username', 'email', 'password1', 'password2'),
+        }),
+    )
+    list_display = ('username', 'email', 'first_name', 'last_name', 'role', 'is_staff', 'is_active')
+    list_filter = ('is_staff', 'is_superuser', 'is_active', 'role', 'date_joined')
+    search_fields = ('username', 'first_name', 'last_name', 'email')
+    ordering = ('-date_joined',)

@@ -493,3 +493,20 @@ def search(request):
                 results['places'] = []
 
     return render(request, 'MyTrip/search.html', {'q': q, 'category': category, 'results': results})
+
+
+def subscribe(request):
+    """Handle newsletter subscription from footer."""
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+        if email:
+            try:
+                from core.models import Newsletter
+                Newsletter.objects.get_or_create(email=email)
+                messages.success(request, 'Thank you for subscribing!')
+            except Exception as e:
+                messages.error(request, 'Subscription failed. Please try again.')
+        else:
+            messages.error(request, 'Please enter a valid email.')
+    
+    return redirect(request.META.get('HTTP_REFERER', '/'))

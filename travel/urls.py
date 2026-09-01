@@ -19,6 +19,9 @@ from django.urls import path, include
 from payments import views as payments_views
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.decorators.http import require_http_methods
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 
 # Customize Django admin site display names
 admin.site.site_header = "MyTrip Administration"
@@ -27,6 +30,14 @@ admin.site.index_title = "MyTrip Administration"
 
 # Apply small admin customizations (hide Group, etc.)
 import travel.admin_hide
+
+# Custom admin index that redirects to unified dashboard
+@require_http_methods(["GET"])
+def admin_index_redirect(request):
+    """Redirect admin index to unified admin dashboard."""
+    if request.user.is_staff or request.user.is_superuser:
+        return HttpResponseRedirect(reverse('admin-home'))
+    return admin.site.index(request)
 
 # Use the standard admin site (staff users with `is_staff=True` can access `/admin/`).
 urlpatterns = [

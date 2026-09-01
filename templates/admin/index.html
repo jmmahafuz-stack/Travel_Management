@@ -1,0 +1,147 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block extrastyle %}
+  <style>
+    .module {
+      background: white;
+      margin: 20px 0;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .module h2 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-top: 0;
+      color: #333;
+    }
+    .module p {
+      margin: 10px 0;
+    }
+    .module a {
+      display: inline-block;
+      padding: 10px 20px;
+      background: #417690;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+      margin-right: 10px;
+      margin-top: 10px;
+    }
+    .module a:hover {
+      background: #205067;
+    }
+    .module a.dashboard-link {
+      background: #417690;
+    }
+    .module a.admin-link {
+      background: #228b22;
+    }
+    .module a.admin-link:hover {
+      background: #1a6b1a;
+    }
+    .admin-navigation {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    @media (max-width: 768px) {
+      .admin-navigation {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+  <div class="admin-navigation">
+    <!-- Unified Admin Dashboard -->
+    <div class="module">
+      <h2>📊 Unified Admin Dashboard</h2>
+      <p>Access the unified admin dashboard with key statistics and management links for your travel booking system.</p>
+      <a href="{% url 'admin-home' %}" class="dashboard-link">Go to Dashboard</a>
+    </div>
+
+    <!-- Django Admin Panel -->
+    <div class="module">
+      <h2>🔧 Django Admin Panel</h2>
+      <p>Access the full Django admin interface for complete control over all models and settings.</p>
+      <a href="{% url 'admin:index' %}" class="admin-link">Go to Django Admin</a>
+    </div>
+  </div>
+
+  {% if app_list %}
+    <h2>{% trans 'Administration' %}</h2>
+    {% for app in app_list %}
+      <div class="module">
+        <table>
+          <caption>
+            <a href="{{ app.app_url }}" class="section" title="{% blocktranslate with name=app.name %}Models in the {{ name }} application{% endblocktranslate %}">{{ app.name }}</a>
+          </caption>
+          <thead class="visually-hidden">
+            <tr>
+              <th scope="col">{% trans 'Model name' %}</th>
+              <th scope="col">{% trans 'Add link' %}</th>
+              <th scope="col">{% trans 'Change link' %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for model in app.models %}
+              <tr class="model-{{ model.object_name|lower }}{% if model.admin_url in request.path|urlencode %} current-model{% endif %}">
+                <th scope="row">
+                  {% if model.admin_url %}
+                    <a href="{{ model.admin_url }}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>{{ model.name }}</a>
+                  {% else %}
+                    {{ model.name }}
+                  {% endif %}
+                </th>
+                {% if model.add_url %}
+                  <td><a href="{{ model.add_url }}" class="addlink">{% trans 'Add' %}</a></td>
+                {% else %}
+                  <td></td>
+                {% endif %}
+                {% if model.change_url %}
+                  <td><a href="{{ model.change_url }}" class="changelink">{% trans 'Change' %}</a></td>
+                {% else %}
+                  <td></td>
+                {% endif %}
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p>{% trans "You don't have permission to view or edit anything." %}</p>
+  {% endif %}
+
+  {% block recent_actions %}
+    {% load log %}
+    {% get_admin_log 10 as admin_log %}
+    {% if admin_log %}
+      <h2>{% trans 'Recent actions' %}</h2>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">{% trans 'Time' %}</th>
+            <th scope="col">{% trans 'User' %}</th>
+            <th scope="col">{% trans 'Action' %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for entry in admin_log %}
+            <tr>
+              <td class="field-time">{{ entry.action_time|date:"Y-m-d H:i" }}</td>
+              <td class="field-user"><a href="{% url 'admin:accounts_user_change' entry.user.pk %}">{{ entry.user.username }}</a></td>
+              <td class="field-action">{{ entry.get_action_flag_display }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+  {% endblock %}
+</div>
+{% endblock %}

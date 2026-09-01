@@ -34,7 +34,12 @@ def site_options(request):
         'site_option': opt,
         'hero_image': _safe_file_url(getattr(opt, 'hero_image', None)) if opt else None,
         'footer_image': _safe_file_url(getattr(opt, 'footer_image', None)) if opt else None,
+        'header_image': _safe_file_url(getattr(opt, 'header_image', None)) if opt else None,
         'hero_heading': opt.hero_heading if opt else None,
         'hero_subheading': opt.hero_subheading if opt else None,
         'search_placeholder': opt.search_placeholder if opt else None,
+        'header_color': opt.header_color if opt else '#1e40af',
+        'header_text_color': opt.header_text_color if opt else '#ffffff',
+        'footer_color': opt.footer_color if opt else '#1e40af',
+        'footer_text_color': opt.footer_text_color if opt else '#ffffff',
     }

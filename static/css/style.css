@@ -1,12 +1,36 @@
 /* Small custom styles for the site */
+html,
+body {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
 body {
   font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+}
+
+/* Ensure navbar doesn't take up flex space */
+.site-header {
+  flex-shrink: 0;
+}
+
+/* Main content takes up available space to push footer down */
+main {
+  flex: 1;
+}
+
+/* Footer stays at bottom */
+.site-footer {
+  flex-shrink: 0;
+  width: 100%;
 }
 
 /* Hero and spacing styles used by front-end pages */
 .display-4 {
   font-weight: 600;
 }
+
 .navbar-brand {
   font-weight: 600;
 }
@@ -28,32 +52,58 @@ body {
   margin-top: 1.5rem !important;
 }
 
+/* Navbar Styling */
+.site-header {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.site-header a:not(.site-header a[href*="subscribe"]) {
+  text-decoration: none;
+}
+
+.site-header button {
+  border: none;
+  background: transparent;
+}
+
+/* Admin button styling */
+.site-header a[href*="admin-home"],
+.site-header a[href*="admin-panel"] {
+  font-weight: 600;
+  display: inline-flex !important;
+  align-items: center;
+  gap: 0.25rem;
+}
+
 /* Footer background image */
 .site-footer {
   position: relative;
   /* Single background image (SVG fallback) */
   background-image: url('../images/footer-bg.svg');
-  background-color: #7DD3FC; /* fallback color while image loads */
-  background-size: cover;
-  background-position: center;
-  color: #ffffff; /* white text for contrast over image */
+  /* fallback color while image loads */
   overflow: hidden;
 }
+
 .site-footer::before {
   content: '';
   position: absolute;
   inset: 0;
-  /* subtle dark overlay to improve text contrast over images */
-  background: rgba(16, 60, 255, 0.28);
+  /* Dark overlay to improve text contrast over images */
+  background: rgba(0, 0, 0, 0.5);
   z-index: 0;
 }
+
 .site-footer .max-w-7xl,
 .site-footer .max-w-7xl * {
   position: relative;
   z-index: 1;
 }
+
 .site-footer .border-t {
-  border-color: rgba(178, 213, 241, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
   background: transparent;
 }
-.site-footer a { color: #083344; }
+
+.site-footer a {
+  transition: opacity 0.2s ease;
+}

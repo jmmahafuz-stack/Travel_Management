@@ -6,9 +6,10 @@ from .models import User
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import login as auth_login, logout as auth_logout
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.contrib.auth.decorators import user_passes_test
 from .decorators import user_required
-from django.db.models import Sum
+from django.db.models import Q, Sum
 
 
 class RegisterView(generics.CreateAPIView):
@@ -85,18 +86,17 @@ def login_view(request):
     """
 
     if request.method == 'POST':
-        email = request.POST.get('email', '').strip().lower()
+        identifier = request.POST.get('email', '').strip()
         password = request.POST.get('password', '')
         remember = request.POST.get('remember') == 'on'
 
         user = None
-        if email and password:
-            try:
-                user = User.objects.get(email=email)
-            except User.DoesNotExist:
-                user = None
+        if identifier and password:
+            user = User.objects.filter(
+                Q(email=identifier.lower()) | Q(username=identifier)
+            ).first()
 
-        if user and user.check_password(password):
+        if user and user.is_active and user.check_password(password):
             auth_login(request, user)
             # Session expiry: persistent if remember checked, else browser-close
             if remember:
@@ -105,18 +105,21 @@ def login_view(request):
                 request.session.set_expiry(0)
 
             messages.success(request, f'Welcome back, {user.first_name or user.username}!')
-            # Role-based redirect: admin users go to the standard Django admin site
-            if getattr(user, 'role', '') == 'admin':
+            # Any Django admin-capable account uses the admin panel.
+            if user.is_staff or user.is_superuser or getattr(user, 'role', '') == 'admin':
                 # Ensure staff flag for Django admin access; keep existing role semantics.
                 if not user.is_staff:
                     user.is_staff = True
                     user.save(update_fields=['is_staff'])
-                return redirect('/admin/')
+                return redirect('admin-home')
+            next_url = request.POST.get('next') or request.GET.get('next')
+            if next_url and url_has_allowed_host_and_scheme(next_url, {request.get_host()}):
+                return redirect(next_url)
             return redirect('user_dashboard')
 
         messages.error(request, 'Invalid login credentials.')
 
-    return render(request, 'auth/login.html')
+    return render(request, 'auth/login.html', {'next': request.GET.get('next', '')})
 
 
 def logout_view(request):

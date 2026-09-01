@@ -30,6 +30,7 @@ DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
 ALLOWED_HOSTS =[
     "127.0.0.1",
     "localhost",
+    "testserver",
     ".onrender.com",
     "mahafuz.page.gd",
 ]

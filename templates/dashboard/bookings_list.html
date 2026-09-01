@@ -3,68 +3,104 @@
 {% block title %}Manage Bookings{% endblock %}
 
 {% block content %}
-<h1 class="text-2xl font-bold mb-4">Bookings</h1>
+<h1 class="text-2xl font-bold mb-4">📝 Manage Bookings</h1>
 
 <div class="bg-white rounded shadow p-4 mb-4">
-  <h3 class="font-semibold mb-2">Flight Bookings</h3>
+  <h3 class="font-semibold mb-3 text-lg">✈️ Flight Bookings</h3>
   {% for b in flight_bookings %}
-    <div class="p-2 border-b flex justify-between items-center">
-      <div>
-        <div><strong>{{ b.flight }}</strong></div>
-        <div class="text-sm text-gray-600">By {{ b.user }} • {{ b.created_at }}</div>
-      </div>
-      <div class="text-right">
-        <div class="text-sm">Status: <strong>{{ b.booking_status }}</strong></div>
-        <div class="mt-2">
-          <a href="{% url 'dashboard-manage-booking-action' 'flight' b.pk 'confirm' %}" class="px-2 py-1 bg-success text-white rounded text-sm">Confirm</a>
-          <a href="{% url 'dashboard-manage-booking-action' 'flight' b.pk 'cancel' %}" class="px-2 py-1 bg-red-500 text-white rounded text-sm">Cancel</a>
+    <div class="p-3 border-b hover:bg-gray-50 transition">
+      <div class="flex justify-between items-start">
+        <div class="flex-1">
+          <div class="font-semibold text-gray-900">{{ b.flight.airline.name }} - {{ b.flight.origin }} → {{ b.flight.destination }}</div>
+          <div class="text-sm text-gray-600 mt-1">Booked by: <strong>{{ b.user.get_full_name|default:b.user.username }}</strong></div>
+          <div class="text-xs text-gray-500 mt-1">Date: {{ b.created_at|date:"M d, Y H:i" }}</div>
+          
+          <!-- Payment Info -->
+          <div class="mt-2 p-2 bg-blue-50 rounded text-xs">
+            <span class="text-blue-800">💳 Amount: ৳{{ b.total_price|default:"0" }} | Status: Pending Payment</span>
+          </div>
+        </div>
+        <div class="text-right ml-4 min-w-max">
+          <div class="text-sm font-semibold mb-2">
+            <span class="px-2 py-1 rounded-full {% if b.booking_status == 'confirmed' %}bg-green-100 text-green-800{% elif b.booking_status == 'pending' %}bg-yellow-100 text-yellow-800{% elif b.booking_status == 'cancelled' %}bg-red-100 text-red-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+              {{ b.booking_status|upper }}
+            </span>
+          </div>
+          <div class="space-x-1 mt-2">
+            <a href="{% url 'dashboard-manage-booking-action' 'flight' b.pk 'confirm' %}" class="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition font-medium">Confirm</a>
+            <a href="{% url 'dashboard-manage-booking-action' 'flight' b.pk 'cancel' %}" class="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition font-medium">Cancel</a>
+          </div>
         </div>
       </div>
     </div>
   {% empty %}
-    <p class="text-sm text-gray-600">No flight bookings yet.</p>
+    <p class="text-sm text-gray-600 p-3">No flight bookings yet.</p>
   {% endfor %}
 </div>
 
 <div class="bg-white rounded shadow p-4 mb-4">
-  <h3 class="font-semibold mb-2">Hotel Bookings</h3>
+  <h3 class="font-semibold mb-3 text-lg">🏨 Hotel Bookings</h3>
   {% for b in hotel_bookings %}
-    <div class="p-2 border-b flex justify-between items-center">
-      <div>
-        <div><strong>{{ b.hotel }}</strong></div>
-        <div class="text-sm text-gray-600">By {{ b.user }} • {{ b.created_at }}</div>
-      </div>
-      <div class="text-right">
-        <div class="text-sm">Status: <strong>{{ b.booking_status }}</strong></div>
-        <div class="mt-2">
-          <a href="{% url 'dashboard-manage-booking-action' 'hotel' b.pk 'confirm' %}" class="px-2 py-1 bg-success text-white rounded text-sm">Confirm</a>
-          <a href="{% url 'dashboard-manage-booking-action' 'hotel' b.pk 'cancel' %}" class="px-2 py-1 bg-red-500 text-white rounded text-sm">Cancel</a>
+    <div class="p-3 border-b hover:bg-gray-50 transition">
+      <div class="flex justify-between items-start">
+        <div class="flex-1">
+          <div class="font-semibold text-gray-900">{{ b.hotel.name }} - {{ b.hotel.city }}</div>
+          <div class="text-sm text-gray-600 mt-1">Booked by: <strong>{{ b.user.get_full_name|default:b.user.username }}</strong></div>
+          <div class="text-xs text-gray-500 mt-1">Date: {{ b.created_at|date:"M d, Y H:i" }}</div>
+          
+          <!-- Payment Info -->
+          <div class="mt-2 p-2 bg-blue-50 rounded text-xs">
+            <span class="text-blue-800">💳 Amount: ৳{{ b.total_price|default:"0" }} | Status: Pending Payment</span>
+          </div>
+        </div>
+        <div class="text-right ml-4 min-w-max">
+          <div class="text-sm font-semibold mb-2">
+            <span class="px-2 py-1 rounded-full {% if b.booking_status == 'confirmed' %}bg-green-100 text-green-800{% elif b.booking_status == 'pending' %}bg-yellow-100 text-yellow-800{% elif b.booking_status == 'cancelled' %}bg-red-100 text-red-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+              {{ b.booking_status|upper }}
+            </span>
+          </div>
+          <div class="space-x-1 mt-2">
+            <a href="{% url 'dashboard-manage-booking-action' 'hotel' b.pk 'confirm' %}" class="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition font-medium">Confirm</a>
+            <a href="{% url 'dashboard-manage-booking-action' 'hotel' b.pk 'cancel' %}" class="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition font-medium">Cancel</a>
+          </div>
         </div>
       </div>
     </div>
   {% empty %}
-    <p class="text-sm text-gray-600">No hotel bookings yet.</p>
+    <p class="text-sm text-gray-600 p-3">No hotel bookings yet.</p>
   {% endfor %}
 </div>
 
 <div class="bg-white rounded shadow p-4 mb-4">
-  <h3 class="font-semibold mb-2">Package Bookings</h3>
+  <h3 class="font-semibold mb-3 text-lg">🎯 Package Bookings</h3>
   {% for b in package_bookings %}
-    <div class="p-2 border-b flex justify-between items-center">
-      <div>
-        <div><strong>{{ b.package }}</strong></div>
-        <div class="text-sm text-gray-600">By {{ b.user }} • {{ b.created_at }}</div>
-      </div>
-      <div class="text-right">
-        <div class="text-sm">Status: <strong>{{ b.booking_status }}</strong></div>
-        <div class="mt-2">
-          <a href="{% url 'dashboard-manage-booking-action' 'package' b.pk 'confirm' %}" class="px-2 py-1 bg-success text-white rounded text-sm">Confirm</a>
-          <a href="{% url 'dashboard-manage-booking-action' 'package' b.pk 'cancel' %}" class="px-2 py-1 bg-red-500 text-white rounded text-sm">Cancel</a>
+    <div class="p-3 border-b hover:bg-gray-50 transition">
+      <div class="flex justify-between items-start">
+        <div class="flex-1">
+          <div class="font-semibold text-gray-900">{{ b.package.title }}</div>
+          <div class="text-sm text-gray-600 mt-1">Booked by: <strong>{{ b.user.get_full_name|default:b.user.username }}</strong></div>
+          <div class="text-xs text-gray-500 mt-1">Date: {{ b.created_at|date:"M d, Y H:i" }}</div>
+          
+          <!-- Payment Info -->
+          <div class="mt-2 p-2 bg-blue-50 rounded text-xs">
+            <span class="text-blue-800">💳 Amount: ৳{{ b.total_price|default:"0" }} | Status: Pending Payment</span>
+          </div>
+        </div>
+        <div class="text-right ml-4 min-w-max">
+          <div class="text-sm font-semibold mb-2">
+            <span class="px-2 py-1 rounded-full {% if b.booking_status == 'confirmed' %}bg-green-100 text-green-800{% elif b.booking_status == 'pending' %}bg-yellow-100 text-yellow-800{% elif b.booking_status == 'cancelled' %}bg-red-100 text-red-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+              {{ b.booking_status|upper }}
+            </span>
+          </div>
+          <div class="space-x-1 mt-2">
+            <a href="{% url 'dashboard-manage-booking-action' 'package' b.pk 'confirm' %}" class="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition font-medium">Confirm</a>
+            <a href="{% url 'dashboard-manage-booking-action' 'package' b.pk 'cancel' %}" class="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition font-medium">Cancel</a>
+          </div>
         </div>
       </div>
     </div>
   {% empty %}
-    <p class="text-sm text-gray-600">No package bookings yet.</p>
+    <p class="text-sm text-gray-600 p-3">No package bookings yet.</p>
   {% endfor %}
 </div>
  

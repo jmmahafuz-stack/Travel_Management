@@ -1,0 +1,199 @@
+{% extends 'admin_base.html' %}
+{% load static %}
+
+{% block title %}Admin Dashboard - MyTrip{% endblock %}
+
+{% block admin_title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="text-3xl font-bold text-gray-900">Welcome Admin</h2>
+      <p class="text-sm text-gray-500 mt-1">{{ request.user.get_full_name|default:request.user.username }}</p>
+    </div>
+    <div class="flex gap-2">
+      <a href="{% url 'admin:index' %}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Admin Panel</a>
+      <a href="{% url 'logout' %}" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">Logout</a>
+    </div>
+  </div>
+
+  <!-- Statistics Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-gray-500 text-sm font-medium">Total Users</p>
+          <p class="text-3xl font-bold text-gray-900 mt-2">{{ total_users }}</p>
+        </div>
+        <div class="text-4xl text-blue-500 opacity-20">👥</div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-gray-500 text-sm font-medium">Total Bookings</p>
+          <p class="text-3xl font-bold text-gray-900 mt-2">{{ total_bookings }}</p>
+          <p class="text-xs text-orange-600 mt-2">{{ pending_bookings }} pending</p>
+        </div>
+        <div class="text-4xl text-green-500 opacity-20">📋</div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-purple-500">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-gray-500 text-sm font-medium">Total Revenue</p>
+          <p class="text-3xl font-bold text-gray-900 mt-2">৳{{ total_revenue|default:"0" }}</p>
+        </div>
+        <div class="text-4xl text-purple-500 opacity-20">💰</div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-orange-500">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-gray-500 text-sm font-medium">Content Items</p>
+          <p class="text-3xl font-bold text-gray-900 mt-2">{{ total_flights|add:total_hotels|add:total_packages }}</p>
+          <p class="text-xs text-gray-600 mt-2">{{ total_flights }} flights • {{ total_hotels }} hotels • {{ total_packages }} packages</p>
+        </div>
+        <div class="text-4xl text-orange-500 opacity-20">📦</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Panels -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Custom Dashboard Links -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-xl font-bold text-gray-900">📊 Custom Dashboard</h3>
+      </div>
+      <div class="space-y-2">
+        <a href="{% url 'dashboard-manage-flights' %}" class="block px-4 py-2 bg-blue-50 text-blue-700 rounded hover:bg-blue-100 transition font-medium">
+          ✈️ Manage Flights
+        </a>
+        <a href="{% url 'dashboard-manage-hotels' %}" class="block px-4 py-2 bg-green-50 text-green-700 rounded hover:bg-green-100 transition font-medium">
+          🏨 Manage Hotels
+        </a>
+        <a href="{% url 'dashboard-manage-packages' %}" class="block px-4 py-2 bg-purple-50 text-purple-700 rounded hover:bg-purple-100 transition font-medium">
+          🎯 Manage Packages
+        </a>
+        <a href="{% url 'dashboard-manage-bookings' %}" class="block px-4 py-2 bg-orange-50 text-orange-700 rounded hover:bg-orange-100 transition font-medium">
+          📝 Manage Bookings
+        </a>
+        <a href="{% url 'dashboard-profile-edit' %}" class="block px-4 py-2 bg-gray-50 text-gray-700 rounded hover:bg-gray-100 transition font-medium">
+          👤 Edit Profile
+        </a>
+      </div>
+    </div>
+
+    <!-- Django Admin Panel -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-xl font-bold text-gray-900">🔧Admin Panel</h3>
+      </div>
+      <div class="space-y-2">
+        <a href="{% url 'admin:accounts_user_changelist' %}" class="block px-4 py-2 bg-indigo-50 text-indigo-700 rounded hover:bg-indigo-100 transition font-medium">
+          👥 Manage Users
+        </a>
+        <a href="{% url 'admin:flights_flight_changelist' %}" class="block px-4 py-2 bg-indigo-50 text-indigo-700 rounded hover:bg-indigo-100 transition font-medium">
+          ✈️ Manage Flights (Admin)
+        </a>
+        <a href="{% url 'admin:hotels_hotel_changelist' %}" class="block px-4 py-2 bg-indigo-50 text-indigo-700 rounded hover:bg-indigo-100 transition font-medium">
+          🏨 Manage Hotels (Admin)
+        </a>
+        <a href="{% url 'admin:bookings_flightbooking_changelist' %}" class="block px-4 py-2 bg-indigo-50 text-indigo-700 rounded hover:bg-indigo-100 transition font-medium">
+          📋 Flight Bookings (Admin)
+        </a>
+        <a href="{% url 'admin:index' %}" class="block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition font-medium">
+          🔗 Full Admin Panel
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Bookings -->
+  <div class="bg-white rounded-lg shadow-md p-6">
+    <h3 class="text-xl font-bold text-gray-900 mb-4">📊 Recent Activity</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Recent Flight Bookings -->
+      <div>
+        <h4 class="font-semibold text-gray-700 mb-3">Recent Flight Bookings</h4>
+        <div class="space-y-2 max-h-64 overflow-y-auto">
+          {% for booking in recent_flight_bookings %}
+          <div class="p-3 bg-gray-50 rounded text-sm">
+            <p class="font-medium text-gray-900">{{ booking.user.get_full_name|default:booking.user.username }}</p>
+            <p class="text-gray-600">{{ booking.flight.airline.name }}</p>
+            <p class="text-xs text-gray-500 mt-1">
+              Status: <span class="px-2 py-1 rounded-full {% if booking.booking_status == 'confirmed' %}bg-green-100 text-green-800{% elif booking.booking_status == 'pending' %}bg-yellow-100 text-yellow-800{% else %}bg-red-100 text-red-800{% endif %}">
+                {{ booking.booking_status }}
+              </span>
+            </p>
+          </div>
+          {% empty %}
+          <p class="text-gray-500">No recent flight bookings</p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Recent Hotel Bookings -->
+      <div>
+        <h4 class="font-semibold text-gray-700 mb-3">Recent Hotel Bookings</h4>
+        <div class="space-y-2 max-h-64 overflow-y-auto">
+          {% for booking in recent_hotel_bookings %}
+          <div class="p-3 bg-gray-50 rounded text-sm">
+            <p class="font-medium text-gray-900">{{ booking.user.get_full_name|default:booking.user.username }}</p>
+            <p class="text-gray-600">{{ booking.hotel.name }}</p>
+            <p class="text-xs text-gray-500 mt-1">
+              Status: <span class="px-2 py-1 rounded-full {% if booking.booking_status == 'confirmed' %}bg-green-100 text-green-800{% elif booking.booking_status == 'pending' %}bg-yellow-100 text-yellow-800{% else %}bg-red-100 text-red-800{% endif %}">
+                {{ booking.booking_status }}
+              </span>
+            </p>
+          </div>
+          {% empty %}
+          <p class="text-gray-500">No recent hotel bookings</p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Recent Package Bookings -->
+      <div>
+        <h4 class="font-semibold text-gray-700 mb-3">Recent Package Bookings</h4>
+        <div class="space-y-2 max-h-64 overflow-y-auto">
+          {% for booking in recent_package_bookings %}
+          <div class="p-3 bg-gray-50 rounded text-sm">
+            <p class="font-medium text-gray-900">{{ booking.user.get_full_name|default:booking.user.username }}</p>
+            <p class="text-gray-600">{{ booking.package.title }}</p>
+            <p class="text-xs text-gray-500 mt-1">
+              Status: <span class="px-2 py-1 rounded-full {% if booking.booking_status == 'confirmed' %}bg-green-100 text-green-800{% elif booking.booking_status == 'pending' %}bg-yellow-100 text-yellow-800{% else %}bg-red-100 text-red-800{% endif %}">
+                {{ booking.booking_status }}
+              </span>
+            </p>
+          </div>
+          {% empty %}
+          <p class="text-gray-500">No recent package bookings</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<style>
+  .space-y-6 > * + * {
+    margin-top: 1.5rem;
+  }
+  
+  .space-y-2 > * + * {
+    margin-top: 0.5rem;
+  }
+
+  .space-y-4 > * + * {
+    margin-top: 1rem;
+  }
+</style>
+{% endblock %}

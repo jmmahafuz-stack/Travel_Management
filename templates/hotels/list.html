@@ -18,8 +18,8 @@
         <div class="mt-2 flex items-center justify-between">
           <div class="text-lg font-bold">৳{{ h.price_per_night }}</div>
           <div class="flex gap-2">
-            <a href="{% url 'hotel_detail' h.pk %}" class="text-primary hover:underline">View</a>
-            <a href="{% url 'hotel_book' h.pk %}" class="px-3 py-1 bg-primary text-white rounded">Book</a>
+            <a href="{% url 'hotel_detail' h.pk %}" class="px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700 transition font-medium">View</a>
+            <a href="{% url 'hotel_book' h.pk %}" class="px-3 py-1 bg-primary text-white rounded hover:bg-blue-700 transition font-medium">Book</a>
           </div>
         </div>
       </div>

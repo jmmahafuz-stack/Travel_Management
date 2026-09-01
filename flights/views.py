@@ -1,7 +1,10 @@
 from django.db.models import Q
 from django.conf import settings
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
+from accounts.decorators import user_required
 from .models import Flight
+from bookings.models import FlightBooking
 import requests
 
 
@@ -101,20 +104,23 @@ def flight_detail_template(request, pk):
 # Booking Page
 # ======================================
 
+@user_required
 def flight_book_view(request, pk):
+    flight = get_object_or_404(Flight, pk=pk)
 
-    flight = get_object_or_404(
-        Flight,
-        pk=pk
-    )
+    if request.method == 'POST':
+        passenger_name = (request.POST.get('name') or '').strip()
+        if not passenger_name:
+            messages.error(request, 'Passenger name is required.')
+            return render(request, 'flights/book.html', {'flight': flight})
 
+        booking = FlightBooking.objects.create(
+            user=request.user,
+            flight=flight,
+            total_price=flight.price,
+            booking_status='pending',
+        )
+        messages.success(request, f'Flight booking created successfully. Your booking ID is #{booking.id}. Use Pay Now to complete payment.')
+        return redirect('bookings_page')
 
-    return render(
-        request,
-
-        "flights/book.html",
-
-        {
-            "flight": flight
-        }
-    )
+    return render(request, 'flights/book.html', {'flight': flight})

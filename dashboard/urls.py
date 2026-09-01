@@ -9,6 +9,7 @@ from . import views
 
 urlpatterns = [
     path('', views.packages_list, name='dashboard-home'),
+    path('admin-home/', views.admin_home, name='admin-home'),
     path('health/', views.health_check, name='dashboard-health'),
 
     # Management UI for Flights

@@ -6,14 +6,19 @@ These are minimal placeholders to make it easier to extend later.
 
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.decorators import user_passes_test, login_required
 from django.contrib import messages
 from django.core.mail import send_mail
 from django.conf import settings
+from django.db.models import Count, Sum
+from django.utils import timezone
+from datetime import timedelta
 
 from flights.models import Flight
 from hotels.models import Hotel
 from packages.models import Package
+from accounts.models import User
+from bookings.models import FlightBooking, HotelBooking, PackageBooking
 
 from .forms import FlightForm, HotelForm, PackageForm
 
@@ -25,10 +30,74 @@ def health_check(request):
 
 
 def _is_admin(user):
-    return user.is_authenticated and getattr(user, 'role', '') == 'admin'
+    """Check if user is an admin (via role or staff/superuser status)."""
+    return user.is_authenticated and (
+        getattr(user, 'role', '') == 'admin' or 
+        user.is_staff or 
+        user.is_superuser
+    )
 
 
-@user_passes_test(_is_admin)
+@login_required
+def admin_home(request):
+    """Admin home page with unified dashboard and admin panel access."""
+    if not (request.user.is_staff or request.user.is_superuser):
+        return redirect('/')
+    
+    # Get statistics
+    total_users = User.objects.count()
+    total_flights = Flight.objects.count()
+    total_hotels = Hotel.objects.count()
+    total_packages = Package.objects.count()
+    
+    # Booking statistics
+    total_bookings = (
+        FlightBooking.objects.count() + 
+        HotelBooking.objects.count() + 
+        PackageBooking.objects.count()
+    )
+    
+    pending_bookings = (
+        FlightBooking.objects.filter(booking_status='pending').count() + 
+        HotelBooking.objects.filter(booking_status='pending').count() + 
+        PackageBooking.objects.filter(booking_status='pending').count()
+    )
+    
+    # Revenue calculation
+    flight_revenue = FlightBooking.objects.filter(
+        booking_status='confirmed'
+    ).aggregate(total=Sum('total_price'))['total'] or 0
+    hotel_revenue = HotelBooking.objects.filter(
+        booking_status='confirmed'
+    ).aggregate(total=Sum('total_price'))['total'] or 0
+    package_revenue = PackageBooking.objects.filter(
+        booking_status='confirmed'
+    ).aggregate(total=Sum('total_price'))['total'] or 0
+    
+    total_revenue = flight_revenue + hotel_revenue + package_revenue
+    
+    # Recent bookings
+    recent_bookings = []
+    flight_bookings = FlightBooking.objects.select_related('user', 'flight').order_by('-created_at')[:3]
+    hotel_bookings = HotelBooking.objects.select_related('user', 'hotel').order_by('-created_at')[:3]
+    package_bookings = PackageBooking.objects.select_related('user', 'package').order_by('-created_at')[:3]
+    
+    context = {
+        'total_users': total_users,
+        'total_flights': total_flights,
+        'total_hotels': total_hotels,
+        'total_packages': total_packages,
+        'total_bookings': total_bookings,
+        'pending_bookings': pending_bookings,
+        'total_revenue': total_revenue,
+        'recent_flight_bookings': flight_bookings,
+        'recent_hotel_bookings': hotel_bookings,
+        'recent_package_bookings': package_bookings,
+    }
+    
+    return render(request, 'dashboard/admin_home.html', context)
+
+
 def flights_list(request):
     flights = Flight.objects.select_related('airline').all().order_by('-created_at')
     return render(request, 'dashboard/flights_list.html', {'flights': flights})
@@ -149,6 +218,7 @@ def package_delete(request, pk):
 
 
 @user_passes_test(_is_admin)
+@user_passes_test(_is_admin)
 def bookings_list(request):
     from bookings.models import FlightBooking, HotelBooking, PackageBooking
 
@@ -166,6 +236,8 @@ def bookings_list(request):
 @user_passes_test(_is_admin)
 def booking_action(request, btype, pk, action):
     """Perform an action on a booking: confirm or cancel."""
+    from payments.models import Payment
+    
     model = None
     if btype == 'flight':
         from bookings.models import FlightBooking
@@ -177,36 +249,85 @@ def booking_action(request, btype, pk, action):
         from bookings.models import PackageBooking
         model = PackageBooking
     else:
-        return redirect('admin:index')
+        messages.error(request, 'Invalid booking type.')
+        return redirect('dashboard-manage-bookings')
 
     booking = get_object_or_404(model, pk=pk)
+    
     if action == 'confirm':
+        # Check if payment exists and is paid
+        payment = Payment.objects.filter(booking_type=btype, booking_id=pk).first()
+        
+        if not payment:
+            messages.warning(request, f"No payment found for this booking. Please process payment first.")
+            return redirect('dashboard-manage-bookings')
+        
+        if payment.payment_status != 'paid':
+            messages.warning(request, f"Payment status is '{payment.payment_status}'. Only 'paid' payments can be confirmed.")
+            return redirect('dashboard-manage-bookings')
+        
+        # Confirm the booking
         booking.booking_status = 'confirmed'
         booking.save()
-        # Notify user by email (if configured)
+        messages.success(request, f"✓ Booking #{booking.id} confirmed successfully! Payment ID: {payment.id}")
+        
+        # Send confirmation email to user
         try:
             recipient = booking.user.email if getattr(booking.user, 'email', '') else None
             if recipient:
-                subject = f"Your booking #{booking.id} has been confirmed"
-                message = f"Hello {booking.user.first_name or booking.user.username},\n\nYour booking (ID: {booking.id}) has been confirmed by the admin.\n\nThank you,\nMyTrip Team"
+                subject = f"Booking Confirmation - MyTrip #{booking.id}"
+                message = f"""Dear {booking.user.first_name or booking.user.username},
+
+Your booking has been confirmed by our admin team.
+
+Booking Details:
+- Booking ID: {booking.id}
+- Type: {btype.capitalize()}
+- Status: CONFIRMED
+- Payment ID: {payment.id}
+- Amount: ৳{payment.amount}
+
+Thank you for booking with MyTrip!
+
+Best regards,
+MyTrip Team"""
                 from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@mytrip.local')
                 send_mail(subject, message, from_email, [recipient], fail_silently=True)
-                messages.success(request, f"User notified: {recipient}")
-        except Exception:
-            messages.warning(request, "Could not send notification email to user.")
+                messages.info(request, f"Confirmation email sent to {recipient}")
+        except Exception as e:
+            messages.warning(request, "Could not send confirmation email to user.")
+            
     elif action == 'cancel':
+        # Cancel the booking
         booking.booking_status = 'cancelled'
         booking.save()
+        messages.success(request, f"✓ Booking #{booking.id} cancelled successfully.")
+        
+        # Send cancellation email to user
         try:
             recipient = booking.user.email if getattr(booking.user, 'email', '') else None
             if recipient:
-                subject = f"Your booking #{booking.id} has been cancelled"
-                message = f"Hello {booking.user.first_name or booking.user.username},\n\nYour booking (ID: {booking.id}) has been cancelled by the admin.\n\nIf you believe this is a mistake please contact support.\n\nMyTrip Team"
+                subject = f"Booking Cancelled - MyTrip #{booking.id}"
+                message = f"""Dear {booking.user.first_name or booking.user.username},
+
+Your booking has been cancelled by our admin team.
+
+Booking ID: {booking.id}
+Type: {btype.capitalize()}
+Status: CANCELLED
+
+If you believe this is a mistake, please contact our support team.
+
+Best regards,
+MyTrip Team"""
                 from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@mytrip.local')
                 send_mail(subject, message, from_email, [recipient], fail_silently=True)
-                messages.success(request, f"User notified: {recipient}")
-        except Exception:
-            messages.warning(request, "Could not send notification email to user.")
+                messages.info(request, f"Cancellation email sent to {recipient}")
+        except Exception as e:
+            messages.warning(request, "Could not send cancellation email to user.")
+    else:
+        messages.error(request, 'Invalid action.')
+        return redirect('dashboard-manage-bookings')
 
     return redirect('dashboard-manage-bookings')
 

@@ -40,6 +40,8 @@ urlpatterns = [
     path('accounts/register/', accounts_views.register_view, name='register'),
     path('accounts/login/', accounts_views.login_view, name='login'),
     path('accounts/logout/', accounts_views.logout_view, name='logout'),
+    
+    path('subscribe/', views.subscribe, name='subscribe'),
 
     # Dashboards
     path('user/dashboard/', accounts_views.user_dashboard, name='user_dashboard'),

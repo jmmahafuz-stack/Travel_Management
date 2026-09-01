@@ -1,6 +1,7 @@
 from django.db.models import Q
 from django.conf import settings
 from django.shortcuts import render, get_object_or_404, redirect
+from django.utils import timezone
 from .models import Hotel
 from accounts.decorators import user_required
 from django.contrib import messages
@@ -83,17 +84,39 @@ def hotel_detail_template(request, pk):
 
 @user_required
 def hotel_book_view(request, pk):
+    hotel = get_object_or_404(Hotel, pk=pk)
 
-    hotel = get_object_or_404(
-        Hotel,
-        pk=pk
-    )
+    if request.method == 'POST':
+        check_in = request.POST.get('check_in')
+        check_out = request.POST.get('check_out')
 
+        if not check_in or not check_out:
+            messages.error(request, 'Check-in and check-out dates are required.')
+            return render(request, 'hotels/book.html', {'hotel': hotel})
 
-    return render(
-        request,
-        "hotels/book.html",
-        {
-            "hotel": hotel
-        }
-    )
+        try:
+            check_in_date = timezone.datetime.strptime(check_in, '%Y-%m-%d').date()
+            check_out_date = timezone.datetime.strptime(check_out, '%Y-%m-%d').date()
+        except ValueError:
+            messages.error(request, 'Please enter valid dates.')
+            return render(request, 'hotels/book.html', {'hotel': hotel})
+
+        if check_out_date <= check_in_date:
+            messages.error(request, 'Check-out date must be after check-in date.')
+            return render(request, 'hotels/book.html', {'hotel': hotel})
+
+        nights = (check_out_date - check_in_date).days
+        total_price = hotel.price_per_night * nights
+
+        booking = HotelBooking.objects.create(
+            user=request.user,
+            hotel=hotel,
+            check_in=check_in_date,
+            check_out=check_out_date,
+            total_price=total_price,
+            booking_status='pending',
+        )
+        messages.success(request, f'Hotel booking created successfully. Your booking ID is #{booking.id}. Use Pay Now to complete payment.')
+        return redirect('bookings_page')
+
+    return render(request, 'hotels/book.html', {'hotel': hotel})
