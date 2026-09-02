@@ -4,15 +4,72 @@
 {% block title %}MyTrip - Home{% endblock %}
 
 {% block content %}
+<style>
+  html, body {
+    overflow-x: hidden;
+  }
+
+  @media (max-width: 640px) {
+    .home-page-hero {
+      min-height: 360px;
+      width: calc(100% + 1.5rem);
+      margin-left: -0.75rem;
+      margin-right: -0.75rem;
+    }
+
+    .home-page-hero-content {
+      padding-left: 1rem !important;
+      padding-right: 1rem !important;
+    }
+
+    .home-page-hero h1 {
+      font-size: 2.1rem !important;
+      line-height: 1.2;
+    }
+
+    .home-page-hero p {
+      font-size: 1rem !important;
+    }
+
+    .home-page-search-form {
+      width: 100% !important;
+      max-width: 100% !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+
+    .home-page-search-form > div {
+      width: 100%;
+    }
+
+    .home-page-search-form select,
+    .home-page-search-form input,
+    .home-page-search-form button {
+      width: 100% !important;
+    }
+
+    .home-page-cta-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+
+    .home-page-cta-links a {
+      flex: 1 1 100%;
+      text-align: center;
+    }
+  }
+</style>
 <!-- Hero Section -->
-<section class="mb-0 w-full">
+<section class="home-page-hero mb-0 w-full">
   <div class="relative h-96 overflow-hidden" style="background: linear-gradient(135deg, #001f3f 0%, #003d7a 100%);">
     {% if hero_image %}
       <img src="{{ hero_image }}" alt="Hero" class="w-full h-full object-cover absolute inset-0">
       <div class="absolute inset-0 bg-black/40"></div>
     {% endif %}
     
-    <div class="relative z-10 h-full flex flex-col items-center justify-center text-center text-white px-12">
+    <div class="home-page-hero-content relative z-10 h-full flex flex-col items-center justify-center text-center text-white px-12">
       <h1 class="text-3xl md:text-5xl font-bold mb-3">
         {% if hero_heading %}
           {{ hero_heading }}
@@ -29,7 +86,7 @@
       </p>
       
       <!-- Search Box -->
-      <form method="get" action="{% url 'search' %}" class="w-full max-w-6xl px-4">
+      <form method="get" action="{% url 'search' %}" class="home-page-search-form w-full max-w-6xl px-4">
         <div class="flex flex-col sm:flex-row gap-2 items-center">
           <select name="type" class="px-4 py-3 rounded border-0 text-base font-bold w-full sm:w-auto" style="background-color: #0066ff; color: #000;">
             <option value="all" style="color: #000; background-color: #fff;">Search All</option>
@@ -201,7 +258,7 @@
   <div class="max-w-screen-2xl mx-auto">
     <h2 class="text-3xl font-bold mb-3">Ready to Book Your Adventure?</h2>
     <p class="text-lg mb-5 max-w-2xl mx-auto">Explore flights, hotels, and travel packages to find your perfect trip.</p>
-    <div class="flex gap-2 justify-center flex-wrap">
+    <div class="home-page-cta-links flex gap-2 justify-center flex-wrap">
       <a href="{% url 'flights_page' %}" class="bg-white text-blue-600 font-semibold px-3 py-1 rounded hover:bg-blue-50 transition text-xs">
         ✈️ Flights
       </a>
