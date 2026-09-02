@@ -3,10 +3,10 @@
   {% if header_image %}style="background-image: url('{{ header_image }}'); background-size: cover; background-position: center; background-color: {{ header_color }};"{% else %}style="background-color: {{ header_color }};"{% endif %}>
   <div class="site-header::before"></div>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-between items-center h-16">
+    <div class="flex justify-between items-center h-16 mobile-nav-wrap">
       <!-- Logo -->
-      <div class="flex items-center gap-8">
-        <a href="{% url 'MyTrip' %}" class="text-xl font-bold" style="color: {{ header_text_color }};">MyTrip</a>
+      <div class="flex items-center gap-8 mobile-brand-wrap">
+        <a href="{% url 'MyTrip' %}" class="text-xl font-bold mobile-brand" style="color: {{ header_text_color }};">MyTrip</a>
 
         <!-- Desktop Navigation Links -->
         <div class="hidden lg:flex lg:items-center lg:space-x-1">
@@ -22,7 +22,7 @@
       </div>
 
       <!-- Right Side: Search + User Actions -->
-      <div class="flex items-center gap-2 sm:gap-4">
+      <div class="flex items-center gap-2 sm:gap-4 mobile-nav-actions">
         <!-- Search Bar (Desktop) -->
         <form method="get" action="{% url 'search' %}" class="hidden md:flex items-center gap-1 px-3 py-2 rounded-lg" style="background-color: #2563eb;">
           <select name="type" class="rounded-md text-xs p-1.5 border-0 bg-blue-50 text-gray-900">
@@ -120,6 +120,58 @@
     /* Smooth transitions for buttons */
     .site-header a, .site-header button {
       transition: all 0.2s ease;
+    }
+
+    @media (max-width: 480px) {
+      .site-header .max-w-7xl {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+      }
+
+      .mobile-nav-wrap {
+        height: auto;
+        min-height: 4rem;
+        gap: 0.5rem;
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+      }
+
+      .mobile-brand-wrap {
+        gap: 0.5rem;
+        min-width: 0;
+      }
+
+      .mobile-brand {
+        font-size: 1.1rem;
+        white-space: nowrap;
+      }
+
+      .mobile-nav-actions {
+        gap: 0.25rem;
+        flex-shrink: 0;
+      }
+
+      .mobile-nav-actions > * {
+        flex-shrink: 0;
+      }
+
+      .site-header #profile-btn,
+      .site-header .login-link,
+      .site-header .register-link,
+      .site-header #mobile-menu-btn,
+      .site-header a[href*="admin-home"] {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+        font-size: 0.75rem;
+      }
+
+      .site-header #profile-btn span {
+        max-width: 4.5rem;
+        display: inline-block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
     }
 
     /* Admin button highlight */
