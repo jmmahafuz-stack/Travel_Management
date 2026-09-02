@@ -9,12 +9,19 @@
     overflow-x: hidden;
   }
 
+  .home-page-hero,
+  .home-page-cta {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+  }
+
   @media (max-width: 640px) {
     .home-page-hero {
       min-height: 360px;
-      width: calc(100% + 1.5rem);
-      margin-left: -0.75rem;
-      margin-right: -0.75rem;
+      width: calc(100vw + 0.75rem);
+      margin-left: calc(50% - 50vw - 0.375rem);
+      margin-right: calc(50% - 50vw - 0.375rem);
     }
 
     .home-page-hero-content {
@@ -254,7 +261,7 @@
 {% endif %}
 
 <!-- Call to Action Section -->
-<section class="w-full text-white py-14 text-center border-t border-blue-500" style="background: linear-gradient(135deg, #001f3f 0%, #003d7a 100%);">
+<section class="home-page-cta w-full text-white py-14 text-center border-t border-blue-500" style="background: linear-gradient(135deg, #001f3f 0%, #003d7a 100%);">
   <div class="max-w-screen-2xl mx-auto">
     <h2 class="text-3xl font-bold mb-3">Ready to Book Your Adventure?</h2>
     <p class="text-lg mb-5 max-w-2xl mx-auto">Explore flights, hotels, and travel packages to find your perfect trip.</p>
