@@ -108,8 +108,11 @@ WSGI_APPLICATION = 'travel.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-# Use Render PostgreSQL when DATABASE_URL is present; otherwise keep local SQLite data on this machine.
-if os.environ.get('DATABASE_URL'):
+# Default to local SQLite on this laptop so app data stays on the machine.
+# Use live database only when an explicit production flag is enabled.
+USE_LIVE_DATABASE = os.environ.get('USE_LIVE_DATABASE', '').lower() in {'1', 'true', 'yes'}
+
+if USE_LIVE_DATABASE and os.environ.get('DATABASE_URL'):
     DATABASES = {
         'default': dj_database_url.config(
             default=os.environ['DATABASE_URL'],
@@ -164,14 +167,17 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Use Cloudinary only when the production env vars are present.
-# Local development falls back to Django's default file storage.
-USE_CLOUDINARY = all(
-    os.environ.get(var)
-    for var in (
-        'CLOUDINARY_CLOUD_NAME',
-        'CLOUDINARY_API_KEY',
-        'CLOUDINARY_API_SECRET',
+# Use Cloudinary only when you explicitly enable live media storage.
+# Local development should save uploads on this machine unless you turn on the production flag.
+USE_CLOUDINARY = (
+    os.environ.get('USE_CLOUDINARY', '').lower() in {'1', 'true', 'yes'}
+    and all(
+        os.environ.get(var)
+        for var in (
+            'CLOUDINARY_CLOUD_NAME',
+            'CLOUDINARY_API_KEY',
+            'CLOUDINARY_API_SECRET',
+        )
     )
 )
 
