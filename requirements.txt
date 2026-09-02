@@ -5,7 +5,7 @@ djangorestframework-simplejwt==5.5.1
 cloudinary==1.46.2
 django-cloudinary-storage==0.3.0
 whitenoise==6.6.0
-psycopg2-binary==2.9.9
+psycopg[binary]==3.3.5
 dj-database-url==2.2.0
 python-decouple==3.8
 Pillow==11.3.0
