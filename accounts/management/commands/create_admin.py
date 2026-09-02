@@ -23,9 +23,12 @@ class Command(BaseCommand):
         User = get_user_model()
 
         # Never overwrite an existing admin or an account with the same username/email.
-        if User.objects.filter(is_superuser=True).exists():
+        existing_admin = User.objects.filter(is_superuser=True).first()
+        if existing_admin:
             self.stdout.write(
-                self.style.WARNING("A superuser already exists. Skipping admin creation.")
+                self.style.WARNING(
+                    f"A superuser already exists ({existing_admin.username}). Skipping admin creation."
+                )
             )
             return
 
